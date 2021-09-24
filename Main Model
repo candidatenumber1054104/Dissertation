@@ -1,0 +1,313 @@
+
+
+# importing required libraries
+import pandas as pd
+from pandas import DataFrame
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+import plotly.express as px
+from sklearn.preprocessing import StandardScaler
+from pandas.plotting import scatter_matrix
+from sklearn.preprocessing import MinMaxScaler
+from matplotlib import pyplot
+%config InlineBackend.figure_format='retina'
+from scipy.spatial.distance import cdist
+
+# reading the data and looking at the first five rows of the data
+File = '/Users/lemurcomputer/Documents/try10.csv'
+data = pd.read_csv(File, header=0)
+data.head()
+
+# statistics of the data
+data.describe()
+
+# load dataset
+# retrieve just the numeric input values
+data1 = data.values[:, :-1]
+# perform a robust scaler transform of the dataset
+trans = MinMaxScaler()
+data = trans.fit_transform(data)
+# convert the array back to a dataframe
+dataset = DataFrame(data)
+# summarize
+print(dataset.describe())
+# histograms of the variables
+dataset.hist()
+pyplot.show()
+
+# Create a PCA instance: pca
+n = len(dataset.columns)
+pca = PCA(n_components=6)
+principalComponents = pca.fit_transform(dataset)
+
+# Plot the explained variances
+features = range(pca.n_components_)
+plt.bar(features, pca.explained_variance_ratio_, color='black')
+plt.xlabel('PCA features')
+plt.ylabel('variance %')
+plt.xticks(features)
+
+##plot biplots for PCA analysis
+### project data into PC space
+#
+## 0,1 denote PC1 and PC2; change values for other PCs
+#xvector = pca.components_[0] # see 'prcomp(my_data)$rotation' in R
+#yvector = pca.components_[1]
+#
+#xs = pca.transform(dataset)[:,0] # see 'prcomp(my_data)$x' in R
+#ys = pca.transform(dataset)[:,1]
+#
+#scalex = 1.0/(xs.max() - xs.min())
+#scaley = 1.0/(ys.max() - ys.min())
+#plt.scatter(xs * scalex,ys * scaley,s=5)
+#for i in range(n):
+#    plt.arrow(0, 0, coeff[i,0], coeff[i,1],color = 'r',alpha = 0.5)
+#    if labels is None:
+#        plt.text(coeff[i,0]* 1.15, coeff[i,1] * 1.15, "Var"+str(i+1), color = 'green', ha = 'center', va = 'center')
+#    else:
+#        plt.text(coeff[i,0]* 1.15, coeff[i,1] * 1.15, labels[i], color = 'g', ha = 'center', va = 'center')
+#
+#plt.xlabel('PCA 0')
+#plt.ylabel('PCA 1')
+### visualize projections
+#    
+### Note: scale values for arrows and text are a bit inelegant as of now,
+###       so feel free to play around with them
+#
+#for i in range(len(xvector)):
+## arrows project features (ie columns from csv) as vectors onto PC axes
+#    plt.arrow(0, 0, xvector[i]*max(xs), yvector[i]*max(ys),
+#              color='r', width=0.0005, head_width=0.0025)
+#    plt.text(xvector[i]*max(xs)*1.2, yvector[i]*max(ys)*1.2,
+#             list(dataset.columns.values)[i], color='b')
+#
+#for i in range(len(xs)):
+## circles project documents (ie rows from csv) as points onto PC axes
+#    plt.plot(xs[i], ys[i], '')
+#    #plt.plot(xs[i], ys[i], 'bo')
+#    #plt.text(xs[i]*1.2, ys[i]*1.2, list(data_df.index)[i], color='b')
+#
+#plt.show()
+
+#def myplot(score,coeff,labels=None):
+#    # 0,1 denote PC1 and PC2; change values for other PCs
+#    xvector = pca.components_[1] # see 'prcomp(my_data)$rotation' in R
+#    yvector = pca.components_[2]
+#
+#    xs = pca.transform(dataset)[:,1] # see 'prcomp(my_data)$x' in R
+#    ys = pca.transform(dataset)[:,2]
+#    n = coeff.shape[0]
+#    scalex = 1.0/(xs.max() - xs.min())
+#    scaley = 1.0/(ys.max() - ys.min())
+#    plt.scatter(xs * scalex,ys * scaley,s=5)
+#    for i in range(n):
+#        plt.arrow(0, 0, coeff[i,0], coeff[i,1],color = 'r',alpha = 0.5)
+#        if labels is None:
+#            plt.text(coeff[i,0]* 1.15, coeff[i,1] * 1.15, "Var"+str(i+1), color = 'green', ha = 'center', va = 'center')
+#        else:
+#            plt.text(coeff[i,0]* 1.15, coeff[i,1] * 1.15, labels[i], color = 'g', ha = 'center', va = 'center')
+# 
+#    plt.xlabel("PC{}".format(0))
+#    plt.ylabel("PC{}".format(1))
+#    plt.grid()
+#    
+#myplot(principalComponents[:,0:2],np.transpose(pca.components_[0:2, :]),list(dataset.columns))
+#
+#plt.show()
+
+#plot biplots for PCA analysis
+## project data into PC space
+
+# 0,1 denote PC1 and PC2; change values for other PCs
+xvector = pca.components_[4] # see 'prcomp(my_data)$rotation' in R
+yvector = pca.components_[5]
+
+xs = pca.transform(dataset)[:,0] # see 'prcomp(my_data)$x' in R
+ys = pca.transform(dataset)[:,1]
+scalex = 1.0/(xs.max() - xs.min())
+scaley = 1.0/(ys.max() - ys.min())
+plt.scatter(xs * scalex,ys * scaley,s=5)
+
+plt.xlabel('PCA 4')
+plt.ylabel('PCA 5')
+## visualize projections
+    
+## Note: scale values for arrows and text are a bit inelegant as of now,
+##       so feel free to play around with them
+
+for i in range(len(xvector)):
+# arrows project features (ie columns from csv) as vectors onto PC axes
+    plt.arrow(0, 0, xvector[i]*max(xs), yvector[i]*max(ys),
+              color='r', width=0.0005, head_width=0.0025)
+    plt.text(xvector[i]*max(xs)*1.2, yvector[i]*max(ys)*1.2,
+             list(dataset.columns.values)[i], color='b')
+
+for i in range(len(xs)):
+# circles project documents (ie rows from csv) as points onto PC axes
+    plt.plot(xs[i], ys[i], '')
+    #plt.plot(xs[i], ys[i], 'bo')
+    #plt.text(xs[i]*1.2, ys[i]*1.2, list(data_df.index)[i], color='b')
+
+plt.show()
+
+## defining the kmeans function with initialization as k-means++
+#kmeans = KMeans(n_clusters=6, init='k-means++')
+#
+## fitting the k means algorithm on scaled data
+#kmeans.fit(dataset)
+
+# inertia on the fitted data
+#kmeans.inertia_
+
+## fitting multiple k-means algorithms and storing the values in an empty list
+#SSE = []
+#for cluster in range(1,20):
+#    kmeans = KMeans(n_jobs = -1, n_clusters = cluster, init='k-means++')
+#    kmeans.fit(dataset)
+#    SSE.append(kmeans.inertia_)
+
+### converting the results into a dataframe and plotting them
+#frame = pd.DataFrame({'Cluster':range(1,20), 'SSE':SSE})
+#plt.figure(figsize=(12,6))
+#plt.plot(frame['Cluster'], frame['SSE'], marker='o')
+#plt.xlabel('Number of clusters')
+#plt.ylabel('Inertia')
+
+# k means using 5 clusters and k-means++ initialization
+kmeans = KMeans(n_jobs = -1, n_clusters = 6, init='k-means++', 
+            max_iter=1000, n_init=100, verbose=0, random_state=1234)
+kmeans.fit(dataset)
+pred = kmeans.predict(dataset)
+
+# inertia on the fitted data
+kmeans.inertia_
+
+frame = pd.DataFrame(dataset)
+frame['cluster'] = pred
+frame['cluster'].value_counts()
+
+dataset["cluster"]=kmeans.labels_
+
+dataset.head(180)
+
+dataset["cluster"].value_counts()
+
+dataset.to_csv("Try11.1results.csv", index=False)
+
+#df = pd.DataFrame(dict(
+#    r1={(1, 2, 3, 4, 5,6),(3,2,4,5,6,3)},
+#    theta=['Energy Access (2019)','GDP Growth (2015-2019)','Governance Index (2019)',
+#           '% of renewables (2015)', 'Practical Potential Solar', 'Wind Potential']))
+#fig = px.line_polar(df, r='r1',theta='theta', line_close=True)
+#fig.show()
+
+#from sklearn.manifold import TSNE 
+#model_10=Kmeans(6)
+#tsne=TSNE(2) 
+#arr=tsne.fit_transform(dataset)
+#plt.scatter(arr[:,0],arr[:,1],c=model_10.labels_)
+
+feature = ['Energy Access (2019)','GDP Growth (2015-2019)','Governance Index (2019)',
+           '% of renewables (2015)', 'Practical Potential Solar', 'Wind Potential']
+cluster1 = [1,3,2,4,1,6,1]
+cluster2 = [3,6,5,5,3,1,3]
+cluster3 = [4,3,2,1,2,5,4]
+cluster4 = [5,2,5,6,1,3,5]
+cluster5 = [2,1,6,2,3,6,2]
+cluster6 = [4,2,5,3,2,1,4]
+
+# Initialise the spider plot by setting figure size and polar projection
+plt.figure(figsize=(15, 9))
+plt.subplot(polar=True)
+
+
+
+theta = np.linspace(0, 2 * np.pi, len(cluster1))
+
+#Arrange the grid into number of sales equal parts in degrees
+lines, labels = plt.thetagrids(range(0, 360, int(360/len(feature))), (feature))
+ 
+# Plot 1st cluster graph
+plt.plot(theta, cluster1)
+ 
+# Plot 2nd cluster graph
+plt.plot(theta, cluster2)
+
+# Plot 2nd cluster graph
+plt.plot(theta, cluster3)
+ 
+# Plot 1st cluster graph
+plt.plot(theta, cluster4)
+ 
+# Plot 2nd cluster graph
+plt.plot(theta, cluster5)
+
+# Plot 2nd cluster graph
+plt.plot(theta, cluster6)   
+
+# Add legend and title for the plot
+plt.legend(labels=('cluster1', 'cluster2', 'cluster3', 'cluster4', 'cluster5', 'cluster6'), loc=1)
+#plt.title("Actual vs Expected sales by Employee")
+ 
+# Dsiplay the plot on the screen
+plt.show()
+
+plt.savefig('trialtest.png')
+
+
+
+
+#employee = ["Sam", "Rony", "Albert", "Chris", "Jahrum"]
+#actual = [45, 53, 55, 61, 57, 45]
+#expected = [50, 55, 60, 65, 55, 50]
+# 
+## Initialise the spider plot by setting figure size and polar projection
+#plt.figure(figsize=(10, 6))
+#plt.subplot(polar=True)
+# 
+#theta = np.linspace(0, 2 * np.pi, len(actual))
+# 
+## Arrange the grid into number of sales equal parts in degrees
+#lines, labels = plt.thetagrids(range(0, 360, int(360/len(employee))), (employee))
+# 
+## Plot actual sales graph
+#plt.plot(theta, actual)
+#plt.fill(theta, actual, 'b', alpha=0.1)
+# 
+## Plot expected sales graph
+#plt.plot(theta, expected)
+# 
+## Add legend and title for the plot
+#plt.legend(labels=('Actual', 'Expected'), loc=1)
+#plt.title("Actual vs Expected sales by Employee")
+# 
+## Dsiplay the plot on the screen
+#plt.show()
+
+# obtaining the centers of the clusters
+centroids = kmeans.cluster_centers_
+clusters = kmeans.fit_predict(data)
+
+# points array will be used to reach the index easy
+points = np.empty((0,len(dataset[0])), float)
+
+# distances will be used to calculate outliers
+distances = np.empty((0,len(dataset[0])), float)
+
+
+for i, center_elem in enumerate(centroids):
+    distances = []
+    countrys = np.array(dataset[dataset['cluster'] == i].iloc[:, 0:6])
+    for country in countrys:
+        dist = [(country[i] - center_elem[i]) for i in range(len(center_elem))]
+        dsq = [d**2 for d in dist]
+        euc_dist = sum(dsq)**0.5
+        distances.append(euc_dist)
+#    pd.DataFrame(distances).to_csv("centroid number try2" + str(i+1) + ".csv")
+
+
+
+
